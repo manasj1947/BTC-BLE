@@ -21,9 +21,9 @@
 */
 
 import React from 'react';
-import { BleManager } from 'react-native-ble-plx';
+import { BleManager, Characteristic } from 'react-native-ble-plx';
 import { Platform, View, Text } from 'react-native';
-
+import { Buffer } from 'buffer'
 const manager = new BleManager();
 class App extends React.Component {
 
@@ -45,18 +45,37 @@ class App extends React.Component {
         device.connect()
           .then(device => {
             console.log('deviceChars:', device)
-            return device.discoverAllServicesAndCharacteristics()
+            return manager.discoverAllServicesAndCharacteristicsForDevice(device.id)
           })
           .then((device) => {
-            const readCharacteristic = device.readCharacteristicForService("00001800-0000-1000-8000-00805f9b34fb", "00001800-0000-1000-8000-00805f9b34fb");
-            console.log('then2', readCharacteristic)
-            manager.servicesForDevice("00:1C:97:19:10:A0")
-              .then(data => {
-                console.log('data:', data)
-                manager.readCharacteristicForDevice("00:1C:97:19:10:A0", "00001800-0000-1000-8000-00805f9b34fb", "00001800-0000-1000-8000-00805f9b34fb")
-                  .then(data => console.log('dataChats:', data))
-              })
-              .catch(err => console.log('err on device:', err))
+            console.log('device', device)
+            device.readCharacteristicForService('00001820-0000-1000-8000-00805f9b34fb', '00002a80-0000-1000-8000-00805f9b34fb')
+              .then(finalData => {
+                console.log('finalDAta', finalData.value)
+                let buff = new Buffer(finalData.value, 'base64');
+                console.log('buff', buff)
+              }).catch(err => console.log('errondevice:', err))
+            // const readCharacteristic = device.readCharacteristicForService("1820", "2a80");
+            // console.log('then2', readCharacteristic)
+            // manager.servicesForDevice(device.id)
+            //   .then(services => {
+            //     console.log('services:', services)
+            //     services.map((srvc) => {
+            //       if (srvc.uuid === '00001820-0000-1000-8000-00805f9b34fb') {
+            //         manager.characteristicsForDevice(device.id, srvc.uuid)
+            //           .then(characteristics => {
+            //             console.log('characteristics:', [srvc.uuid, characteristics[0].uuid])
+            //             device.readCharacteristicForService(srvc.uuid, characteristics[0].uuid)
+            //               .then(finalData => {
+            //                 console.log('finalDAta', finalData)
+            //               }).catch(err => console.log('errondevice:', err))
+            //           })
+            //           .catch(err => console.log('err on device:', err))
+            //       }
+            //     })
+
+            //   })
+            //   .catch(err => console.log('err on device:', err))
           })
           .catch((error) => {
             console.log('error:', error)
